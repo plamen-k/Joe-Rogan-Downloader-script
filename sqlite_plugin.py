@@ -19,16 +19,19 @@ def perform_query(query):
 
 
 def write_checksum(episode, checksum):
-    print(episode)
+    perform_query("DELETE FROM checksums where episode=%d" % episode)
     query = "INSERT INTO checksums (episode, checksum) VALUES (%d, '%s');" % (episode, checksum)
-    print(query)
     perform_query(query)
 
 
 def read_checksum(episode):
     query = "SELECT checksum FROM checksums WHERE episode=%d LIMIT 1;" % (episode)
-    return perform_query(query)
+    return perform_query(query)[0]
 
 def _delete_entry(episode):
     query = "DELETE FROM checksums where episode=(%d);" % (episode)
+    return perform_query(query)
+
+def nuke():
+    query = "DELETE FROM checksums"
     return perform_query(query)

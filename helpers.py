@@ -18,6 +18,8 @@ def process(episode):
         # see if it was properly downloaded (the db contains proper hashes)
         file_hash = md5_file(path_to_file)
         db_hash = read_checksum(episode)
+        # print("Episode %d\nFile hash: %s\ndatabase hash: %s" % (episode,file_hash, db_hash)) if os.environ['DEBUG'] else 0
+        # sys.exit(0)
         if file_hash == db_hash:
             return 1
 
@@ -62,9 +64,13 @@ def find_episode(episode_number):
 def exists(url):
     try:
         request = urllib.urlopen(url)
-        return 1
+        if request.getcode() == 200:
+            return 1
+        else:
+            return 0
 
-    except:
+    except urllib.error.HTTPError as e:
+        print(e)
         return 0
 
 
@@ -105,8 +111,8 @@ def _reporthook(numblocks, blocksize, filesize, url=None):
         percent = 100
     if numblocks != 0:
         sys.stdout.write("\b"*70)
-    sys.stdout.write("%-66s%3d%%" % (base, percent))
-
+    if percent % 10 == 0:
+        sys.stdout.write("%-66s%3d%%" % (base, percent))
 
 def download(url, dst="a.mp3"):
     print("get url %s to %s" % (url, dst))

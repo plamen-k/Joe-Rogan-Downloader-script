@@ -1,5 +1,5 @@
 #! /usr/bin/env python
-import sqlite3, sys
+import sqlite3, sys, os
 
 def perform_query(query):
     # determine if the query is insert or select
@@ -26,7 +26,11 @@ def write_checksum(episode, checksum):
 
 def read_checksum(episode):
     query = "SELECT checksum FROM checksums WHERE episode=%d LIMIT 1;" % (episode)
-    return perform_query(query)[0]
+    results = perform_query(query)
+    if(results and len(results)):
+        return results[0]
+    else:
+        return results
 
 def _delete_entry(episode):
     query = "DELETE FROM checksums where episode=(%d);" % (episode)

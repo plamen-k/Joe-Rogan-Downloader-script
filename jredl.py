@@ -1,6 +1,6 @@
-#! /usr/bin/env python
+#! /usr/bin/python
 
-import sys, getopt, os, urllib, hashlib, requests
+import sys, getopt, os, urllib, hashlib, requests, time
 from sqlite_plugin import read_checksum, write_checksum
 from helpers import fork, parse_args
 QUEUE = 6
@@ -11,7 +11,7 @@ def main(argv):
     episode_from = 0
 
     from_ep, to_ep = parse_args(argv)
-    for episode in range(from_ep,to_ep):
+    for episode in range(from_ep,to_ep+1):
         processes.append(fork(episode))
         if len(processes) % QUEUE == 0:
             for pid in processes:

@@ -1,12 +1,13 @@
 from sqlite_plugin import write_checksum, read_checksum, nuke
 import unittest, time
 from shutil import copyfile
-from helpers import fork
+from helpers import fork, process
 
 class JRETester(unittest.TestCase):
     def setUp(self):
 
-        nuke()
+        # nuke()
+        pass
         # copyfile("checksum.db", "checksum.db.bak")
 
 
@@ -16,24 +17,19 @@ class JRETester(unittest.TestCase):
 
 
     def test_download_episode(self):
-        pass
+        process(1)
 
     def test_already_downloaded_episode(self):
         pass
     def test_download_broken_episode(self):
         pass
-        
+
     def test_can_write_to_database(self):
         episode = 9000
         hashsum = "foobar"
         write_checksum(episode, hashsum)
-        read_hash = read_checksum(episode)[0]
+        read_hash = read_checksum(episode)
         self.assertEqual(hashsum, read_hash)
-
-    def test_threading(self):
-
-        for i in range(1,200):
-            fork(i)
 
 
 if __name__ == '__main__':

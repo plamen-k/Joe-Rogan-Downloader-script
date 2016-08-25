@@ -1,18 +1,48 @@
-import sys, getopt, os, requests, urllib
+#! /usr/bin/env python
+
+import sys, getopt, os, urllib, hashlib, requests
+from sqlite_plugin import read_checksum, write_checksum
+global DOWNLOAD_FOLDER
+DOWNLOAD_FOLDER = "podcasts"
+
 
 def main(argv):
-    opts, args = getopt.getopt(argv,"hi:o:",["help","ofile="])        
+    opts, args = getopt.getopt(argv,"hi:o:",["help","ofile="])
     episode_to = 0
     episode_from = 0
 
-    from_ep, to_ep =parse_args(argv)
+    from_ep, to_ep = parse_args(argv)
     for episode in range(from_ep,to_ep+1):
         download_url = find_episode(episode)
+        path_to_file = "%s/%s.mp3" % (DOWNLOAD_FOLDER, episode)
 
-        download_folder = "joerogan"
-        if( not os.path.exists(download_folder)):
-            os.makedirs(download_folder)
-        download(download_url, download_folder + '/' + str(episode) + ".mp3")
+        # if file looks like it is downloaded
+        if os.path.isfile(path_to_file):
+            # see if it was properly downloaded (the db contains proper hashes)
+            file_hash = md5_file(path_to_file)
+            db_hash = read_checksum(episode)
+            if file_hash == db_hash:
+                continue
+
+        # else record the downloaded file's checksum in the db
+        download(download_url, path_to_file)
+        file_checksum = md5_file(path_to_file)
+        write_checksum(episode, file_checksum)
+
+# 
+# def fork(episode):
+#     pid = os.fork()
+#     if pid == 0:
+#         myfunc(episode)
+#         os._exit(0)
+#     else:
+#         pidlist.append(pid)
+#
+#     if len(pidlist) == 40:
+#         for pid in pidlist:
+#             pid, status = os.waitpid(pid, 0)
+#             print("PID %d finished"  % pid)
+#             pidlist.remove(pid)
 
 def find_episode(episode_number):
     possible_urls = (
@@ -26,32 +56,36 @@ def find_episode(episode_number):
 
     for possible_url in possible_urls:
         episode_url = ''
-        if(episode_url == 9):
+        if episode_url == 9:
             episode_url = "http://traffic.libsyn.com/joeroganexp/p3.mp3"
-        if(episode_url == 133):
+        if episode_url == 133:
             episode_url = "http://traffic.libsyn.com/joeroganexp/podcast132.mp3"
         # default case
         else:
             episode_url = str(possible_url) + str(episode_number) + ".mp3"
 
         url = episode_url
-        if(exists(url)):
+        if exists(url):
             return episode_url
-        
-    print("Unable to find url for episode %d, we tried url %s.\nPlease contact p.kolev22@gmail.com with the episode number for resolution.\nThank You !" % (episode_number, episode_url))
-        # url = direct_url(episode_url)
 
+    print("Unable to find url for episode %d, we tried url %s.\n"
+          "Please contact p.kolev22@gmail.com with the episode number for resolution.\n"
+          "Thank You !"
+          % (episode_number, episode_url)
+    )
 
 
 # check if the url is reachable
 def exists(url):
     try:
-        request=urllib.request.urlopen(url)
+        request = urllib.urlopen(url)
         return 1
+
     except:
         return 0
 
-def help():
+
+def help_message():
     print("""
     Usage: {0} episode [optional episode to]
     Example for single episode {0} {1} # will download episode {1}:
@@ -61,18 +95,17 @@ def help():
     sys.exit()
 
 
-
-# returnes proper args
+# return proper args
 def parse_args(arguments):
-    if(len(arguments)):
+    if len(arguments):
         episode_from = int(arguments[0])
 
-        if(len(arguments) == 2 ):
+        if len(arguments) == 2:
             episode_to = int(arguments[1])
         else:
             episode_to = int(arguments[0])
     else:
-        help()
+        help_message()
         sys.exit()
     return (episode_from, episode_to)
 
@@ -91,16 +124,27 @@ def _reporthook(numblocks, blocksize, filesize, url=None):
         sys.stdout.write("\b"*70)
     sys.stdout.write("%-66s%3d%%" % (base, percent))
 
+
 def download(url, dst="a.mp3"):
     print("get url %s to %s" % (url, dst))
     if sys.stdout.isatty():
-        urllib.request.urlretrieve(url, dst,
+        urllib.urlretrieve(url, dst,
                            lambda nb, bs, fs, url=url: _reporthook(nb,bs,fs,url))
         sys.stdout.write('\n')
     else:
-        urllib.request.urlretrieve(url, dst)
+        urllib.urlretrieve(url, dst)
 
 ######### ENDSTOLENSNIPPET
+
+
+def md5_file(file):
+    md5 = hashlib.md5()
+    with open(file, "rb") as f:
+        for chunk in iter(lambda: f.read(4096), b""):
+            md5.update(chunk)
+    return md5.hexdigest()
+
+
 
 if __name__ == '__main__':
     main(sys.argv[1:])

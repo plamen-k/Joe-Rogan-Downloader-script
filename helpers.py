@@ -31,12 +31,13 @@ def process(episode):
 
 def find_episode(episode_number):
     possible_urls = (
+        "http://traffic.libsyn.com/joeroganexp/",
         "http://traffic.libsyn.com/joeroganexp/podcast",
         "http://traffic.libsyn.com/joeroganexp/joecast",
         "http://traffic.libsyn.com/joeroganexp/jre",
         "http://traffic.libsyn.com/joeroganexp/p",
         "http://traffic.libsyn.com/joeroganexp/pocast",
-        "http://traffic.libsyn.com/joeroganexp/",
+
         "http://traffic.libsyn.com/joeroganexp/_p"
     )
 
@@ -50,6 +51,10 @@ def find_episode(episode_number):
             return "http://traffic.libsyn.com/joeroganexp/jre141.mp3"
         elif episode_number == 149:
             return "http://traffic.libsyn.com/joeroganexp/icehouse1.mp3"
+        elif episode_number == 202:
+            return "http://traffic.libsyn.com/joeroganexp/p203.mp3"
+        elif episode_number == 224:
+            return "http://traffic.libsyn.com/joeroganexp/p234.mp3"
         # default case
         else:
             episode_url = str(possible_url) + str(episode_number) + ".mp3"

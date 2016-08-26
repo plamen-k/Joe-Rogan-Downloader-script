@@ -1,5 +1,5 @@
 from sqlite_plugin import write_checksum, read_checksum
-import sys, getopt, os, urllib, hashlib, requests, syslog
+import sys, getopt, os, urllib, hashlib, requests, syslog, time
 
 DOWNLOAD_FOLDER = "podcasts"
 
@@ -35,16 +35,21 @@ def find_episode(episode_number):
         "http://traffic.libsyn.com/joeroganexp/joecast",
         "http://traffic.libsyn.com/joeroganexp/jre",
         "http://traffic.libsyn.com/joeroganexp/p",
-        "http://traffic.libsyn.com/joeroganexp/podcast",
-        "http://traffic.libsyn.com/joeroganexp/"
+        "http://traffic.libsyn.com/joeroganexp/pocast",
+        "http://traffic.libsyn.com/joeroganexp/",
+        "http://traffic.libsyn.com/joeroganexp/_p"
     )
 
     for possible_url in possible_urls:
         episode_url = ''
         if episode_number == 9:
             return "http://traffic.libsyn.com/joeroganexp/p3.mp3"
-        if episode_number == 133:
+        elif episode_number == 133:
             return "http://traffic.libsyn.com/joeroganexp/podcast132.mp3"
+        elif episode_number == 142:
+            return "http://traffic.libsyn.com/joeroganexp/jre141.mp3"
+        elif episode_number == 149:
+            return "http://traffic.libsyn.com/joeroganexp/icehouse1.mp3"
         # default case
         else:
             episode_url = str(possible_url) + str(episode_number) + ".mp3"

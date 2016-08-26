@@ -13,7 +13,6 @@ def fork(episode):
 def process(episode):
     download_url = find_episode(episode)
     path_to_file = "%s/%s.mp3" % (DOWNLOAD_FOLDER, episode)
-
     # if file looks like it is downloaded
     if os.path.isfile(path_to_file):
         # see if it was properly downloaded (the db contains proper hashes)
@@ -28,7 +27,7 @@ def process(episode):
     download(download_url, path_to_file)
     file_checksum = md5_file(path_to_file)
     write_checksum(episode, file_checksum)
-
+    time.sleep(10)
 
 def find_episode(episode_number):
     possible_urls = (
@@ -44,8 +43,6 @@ def find_episode(episode_number):
         episode_url = ''
         if episode_number == 9:
             return "http://traffic.libsyn.com/joeroganexp/p3.mp3"
-        if episode_number == 35:
-            return ""
         if episode_number == 133:
             return "http://traffic.libsyn.com/joeroganexp/podcast132.mp3"
         # default case
@@ -59,7 +56,6 @@ def find_episode(episode_number):
             appends = ["x","xx","a","b"]
             for suffix in appends:
                 episode_url = "%s%d%s.mp3" % (possible_url,episode_number,suffix);
-                print episode_url
                 if exists(episode_url):
                     return episode_url
 

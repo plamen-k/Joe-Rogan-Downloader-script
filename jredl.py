@@ -18,7 +18,6 @@ def main(argv):
                 pid, status = os.waitpid(pid, 0)
                 processes.remove(pid)
             # sleep a bit (don't upset the servers) :)
-            time.sleep(10)
 
     for pid in processes:
         pid, status = os.waitpid(pid, 0)

@@ -1,5 +1,6 @@
 from sqlite_plugin import write_checksum, read_checksum
-import sys, getopt, os, urllib, hashlib, requests
+import sys, getopt, os, urllib, hashlib, requests, syslog
+
 DOWNLOAD_FOLDER = "podcasts"
 
 def fork(episode):
@@ -19,8 +20,8 @@ def process(episode):
         file_hash = md5_file(path_to_file)
         db_hash = read_checksum(episode)
         # print("Episode %d\nFile hash: %s\ndatabase hash: %s" % (episode,file_hash, db_hash)) if os.environ['DEBUG'] else 0
-        # sys.exit(0)
         if file_hash == db_hash:
+            print ("Episode %s already downloaded" % episode)
             return 1
 
     # else record the downloaded file's checksum in the db
@@ -41,18 +42,28 @@ def find_episode(episode_number):
 
     for possible_url in possible_urls:
         episode_url = ''
-        if episode_url == 9:
-            episode_url = "http://traffic.libsyn.com/joeroganexp/p3.mp3"
-        if episode_url == 133:
-            episode_url = "http://traffic.libsyn.com/joeroganexp/podcast132.mp3"
+        if episode_number == 9:
+            return "http://traffic.libsyn.com/joeroganexp/p3.mp3"
+        if episode_number == 35:
+            return ""
+        if episode_number == 133:
+            return "http://traffic.libsyn.com/joeroganexp/podcast132.mp3"
         # default case
         else:
             episode_url = str(possible_url) + str(episode_number) + ".mp3"
 
-        url = episode_url
-        if exists(url):
+        if exists(episode_url):
             return episode_url
+        else:
+             # those are letters that sometimes are prependet to an episode like 141a
+            appends = ["x","xx","a","b"]
+            for suffix in appends:
+                episode_url = "%s%d%s.mp3" % (possible_url,episode_number,suffix);
+                print episode_url
+                if exists(episode_url):
+                    return episode_url
 
+    syslog.syslog(syslog.LOG_ERR, 'Unable to download episode %d, tried url %s' % (episode_number, episode_url) )
     print("Unable to find url for episode %d, we tried url %s.\n"
           "Please contact p.kolev22@gmail.com with the episode number for resolution.\n"
           "Thank You !"
@@ -111,11 +122,11 @@ def _reporthook(numblocks, blocksize, filesize, url=None):
         percent = 100
     if numblocks != 0:
         sys.stdout.write("\b"*70)
-    if percent % 10 == 0:
+    if percent % 100 == 0:
         sys.stdout.write("%-66s%3d%%" % (base, percent))
 
 def download(url, dst="a.mp3"):
-    print("get url %s to %s" % (url, dst))
+    # print("get url %s to %s" % (url,  dst))
     if sys.stdout.isatty():
         urllib.urlretrieve(url, dst,
                            lambda nb, bs, fs, url=url: _reporthook(nb,bs,fs,url))

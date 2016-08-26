@@ -3,7 +3,7 @@
 import sys, getopt, os, urllib, hashlib, requests, time
 from sqlite_plugin import read_checksum, write_checksum
 from helpers import fork, parse_args
-QUEUE = 6
+QUEUE = 10
 processes = []
 def main(argv):
     opts, args = getopt.getopt(argv,"hi:o:",["help","ofile="])
@@ -18,7 +18,7 @@ def main(argv):
                 pid, status = os.waitpid(pid, 0)
                 processes.remove(pid)
             # sleep a bit (don't upset the servers) :)
-            time.sleep(5)
+            time.sleep(10)
 
     for pid in processes:
         pid, status = os.waitpid(pid, 0)

@@ -56,6 +56,8 @@ def find_episode(episode_number):
         elif episode_number == 224:
             return "http://traffic.libsyn.com/joeroganexp/p234.mp3"
         # default case
+        elif episode_number == 491:
+            return "http://traffic.libsyn.com/joeroganexp/491_-_Steve_Maxwell.mp3"
         else:
             episode_url = str(possible_url) + str(episode_number) + ".mp3"
 
